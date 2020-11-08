@@ -43,9 +43,36 @@ function App() {
 
   useEffect(() => {
     socket.on('menssageReceived', (data: MessageListProps) => {
-      setMessagesList([data, ...messagesList]);
+      setMessagesList((messagesList) => [data, ...messagesList]);
     });
-  }, [socket, messagesList]);
+  }, [socket]);
+
+  const listMessages = useMemo(
+    () => (
+      <FlatList
+        style={styles.messageBox}
+        data={messagesList}
+        keyExtractor={(item, index) => String(index)}
+        inverted
+        renderItem={({item}) => {
+          return (
+            <View>
+              <Text
+                style={[
+                  styles.message,
+                  item.user_id === 2
+                    ? styles.sendMessage
+                    : styles.receivedMessage,
+                ]}>
+                {item.message}
+              </Text>
+            </View>
+          );
+        }}
+      />
+    ),
+    [messagesList],
+  );
 
   function handleSendMessage() {
     setMessagesList([{user_id: 2, message}, ...messagesList]);
@@ -59,27 +86,7 @@ function App() {
       <Header />
       <View style={styles.container}>
         <ImageBackground style={styles.background} source={Background}>
-          <FlatList
-            style={styles.messageBox}
-            data={messagesList}
-            keyExtractor={(item, index) => String(index)}
-            inverted
-            renderItem={({item}) => {
-              return (
-                <View>
-                  <Text
-                    style={[
-                      styles.message,
-                      item.user_id === 2
-                        ? styles.sendMessage
-                        : styles.receivedMessage,
-                    ]}>
-                    {item.message}
-                  </Text>
-                </View>
-              );
-            }}
-          />
+          {listMessages}
           <View style={styles.footer}>
             <View style={styles.textField}>
               <Entypo name="emoji-happy" size={25} color="#999" />

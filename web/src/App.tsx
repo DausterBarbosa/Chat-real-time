@@ -28,9 +28,22 @@ function App(){
 
   useEffect(() => {
     socket.on("menssageReceived",(data:MessagesProps) => {
-      setMessagesList([...messagesList, data]);
+      setMessagesList((messagesList) => [...messagesList, data]);
     });
-  }, [socket, messagesList]);
+  }, [socket]);
+
+  const listMessages = useMemo(() => (
+    <div className="boxMessage">
+        {messagesList.map((message, index) => {
+          console.log(message)
+          return (
+            <div key={index} className={"messageLine " + (message.user_id === 2 ? "lineReceived" : "lineSend")}>
+              <p className={"messageBox " + (message.user_id === 2 ? "receivedMessage" : "sendMessage")}>{message.message}</p>
+            </div>
+          );
+        })}
+    </div>
+  ), [messagesList]);
 
   function handleMessage(e:any){
     e.preventDefault();
@@ -59,16 +72,7 @@ function App(){
             <FiMoreVertical size={20} color="#999" className="icon"/>
           </div>
         </div>
-        <div className="boxMessage">
-            {messagesList.map((message, index) => {
-              console.log(message)
-              return (
-                <div key={index} className={"messageLine " + (message.user_id === 2 ? "lineReceived" : "lineSend")}>
-                  <p className={"messageBox " + (message.user_id === 2 ? "receivedMessage" : "sendMessage")}>{message.message}</p>
-                </div>
-              );
-            })}
-        </div>
+        {listMessages}
         <form className="footer" onSubmit={handleMessage}>
           <GrEmoji size={30} color="#999"/>
           <input
